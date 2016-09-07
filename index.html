@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hubtag Viz</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
+
+<style>
+.tile {
+    border: 1px solid lightgray;
+    width: 20px;
+    height: 20px;
+}
+
+.tile:hover {
+    border: 1px solid gray;
+    cursor: pointer;
+}
+
+.tile--0 {
+    background-color: white;
+}
+
+.tile--1 {
+    background-color: lightgray;
+}
+
+.tile--2 {
+    background-color: lightgreen;
+}
+
+.tile--3 {
+    background-color: green;
+}
+</style>
+</head>
+<body ng-app="hubtagApp" ng-controller="HubtagController as ctrl">
+
+<h1>Hubtag Viz</h1>
+<p>Click on a tile, generate your work schedule and DO IT.</p>
+
+
+<table>
+    <thead>
+        <tr>
+            <td></td>
+            <td ng-repeat="week in ctrl.weeks">
+                <span>   </span>
+                <span ng-if="week % 4 == 0 || $index == 0 || $index == ctrl.weeks.length-1">W{{week}}</span>
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="day in ctrl.days">
+            <td>{{day}}</td>
+            <td ng-repeat="week in ctrl.weeks">
+            <div class="tile tile--{{ctrl.getContributions(week, day)}}" ng-click="ctrl.clickOnTile(week, day)"></div>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+    <hr>
+    <p>Here is your current schedule:<p>
+    <div ng-repeat="(key, action) in ctrl.tiles | sortedSchedule" ng-if="action.contributions > 0">Week {{action.week}}:  {{action.day}} --> {{action.contributions}}</div>
+
+<script>
+angular.module('hubtagApp', [])
+.controller('HubtagController', HubtagController)
+.filter('sortedSchedule', tagFilter);
+
+function HubtagController() {
+
+    // hold the weeks
+    this.weeks = [];
+    for(var i = 1; i < 52; i++) { this.weeks.push(i);}
+
+    // hold the days of one week
+    this.days = ['SUN', 'MON','TUE', 'WED', 'THR', 'FRI', 'SAT']
+
+    // contains the schedule to pursuit
+    this.tiles = {};
+
+    // changes the state of the tile
+    this.clickOnTile = function clickOnTile(week, day) {
+
+        var oldContribution = this.tiles[week + '_' + day] ? this.tiles[week + '_' + day].contributions : 0;
+        var newContribution = (oldContribution + 1) % 4;
+
+
+        this.tiles[week + '_' + day] = { // we use a hashmap for simple lookup avoiding nested lists
+            contributions: newContribution,
+            week: week,
+            day: day
+        };
+    }
+
+    // returns the contribution count of the tile
+    this.getContributions = function getContributions(week, day) {
+        if (this.tiles && this.tiles[week + '_' + day]) {
+            return this.tiles[week + '_' + day].contributions;
+        }
+        return 0;
+    }
+}
+// returns a nice schedule sorted by week and day
+function tagFilter() {
+    return function(items) {
+        var keys = Object.keys(items);
+
+        // we want to have things sorted 1,2,3,22 and not 1,2,22,3
+        keys.sort(function(val1, val2) {
+            return val1.localeCompare(val2);
+        });
+
+        var schedule = [];
+        keys.forEach(function(key) {
+            schedule.push(items[key]);
+        })
+
+        return schedule;
+    }
+}
+
+</script>
+
+</body>
+</html>
