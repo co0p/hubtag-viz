@@ -1,61 +1,72 @@
-
 if (!window.angular) throw new Error('Please load angular prior to this script');
 
 angular.module('hubtagApp', [])
-.controller('HubtagController', HubtagController)
-.filter('sortedSchedule', tagFilter);
+  .controller('HubtagController', HubtagController)
+  .filter('sortedSchedule', sortedScheduleFilter);
 
 function HubtagController() {
-    // the maximum number of colors for each tile
-    var MAX_COLORS = 5;
 
-    // hold the weeks
-    this.weeks = [];
-    for(var i = 1; i < 52; i++) { this.weeks.push(i);}
+  // helper to generate a hashmap key; this makes sorting easier
+  function key(week, day) {
+    return week * 10000  +  day;
+  }
 
-    // hold the days of one week
-    this.days = ['SUN', 'MON','TUE', 'WED', 'THR', 'FRI', 'SAT']
+  // the maximum number of colors for each tile
+  var MAX_COLORS = 5;
 
-    // contains the schedule to pursuit
-    this.tiles = {};
+  // hold the weeks
+  this.weeks = [];
+  for (var i = 1; i < 52; i++) { this.weeks.push(i);}
 
-    // changes the state of the tile
-    this.clickOnTile = function clickOnTile(week, day) {
+  // hold the days of one week
+  this.days = {
+    'SUN': 0,
+    'MON': 1,
+    'TUE': 2,
+    'WED': 3,
+    'THR': 4,
+    'FRI': 5,
+    'SAT': 6
+  };
 
-        var oldContribution = this.tiles[week + '_' + day] ? this.tiles[week + '_' + day].contributions : 0;
-        var newContribution = (oldContribution + 1) % MAX_COLORS;
+  // contains the schedule to pursuit
+  this.tiles = {};
 
+  // changes the state of the tile
+  this.clickOnTile = function clickOnTile(week, day, dayLabel) {
 
-        this.tiles[week + '_' + day] = { // we use a hashmap for simple lookup avoiding nested lists
-            contributions: newContribution,
-            week: week,
-            day: day
-        };
+    var oldContribution = this.tiles[ key(week, day) ] ? this.tiles[ key(week, day) ].contributions : 0;
+    var newContribution = (oldContribution + 1) % MAX_COLORS;
+
+    this.tiles[ key(week, day) ] = { // we use a hashmap for simple lookup avoiding nested lists
+      contributions: newContribution,
+      week: week,
+      day: dayLabel
+    };
+  };
+
+  // returns the contribution count of the tile
+  this.getContributions = function getContributions(week, day) {
+    if (this.tiles && this.tiles[ key(week, day) ]) {
+      return this.tiles[ key(week, day) ].contributions;
     }
-
-    // returns the contribution count of the tile
-    this.getContributions = function getContributions(week, day) {
-        if (this.tiles && this.tiles[week + '_' + day]) {
-            return this.tiles[week + '_' + day].contributions;
-        }
-        return 0;
-    }
+    return 0;
+  }
 }
 // returns a nice schedule sorted by week and day
-function tagFilter() {
-    return function(items) {
-        var keys = Object.keys(items);
+function sortedScheduleFilter() {
+  return function (items) {
 
-        // we want to have things sorted 1,2,3,22 and not 1,2,22,3
-        keys.sort(function(val1, val2) {
-            return val1.localeCompare(val2);
-        });
+    // will contains the days
+    var weeks = {};
+    var keys = Object.keys(items);
+    keys.sort(function (val1, val2) { return val1 - val2; });
 
-        var schedule = [];
-        keys.forEach(function(key) {
-            schedule.push(items[key]);
-        })
+    var schedule = [];
+    keys.forEach(function(key) {
+      schedule.push(items[key]);
+    });
 
-        return schedule;
-    }
+    return schedule;
+  }
 }

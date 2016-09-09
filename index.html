@@ -1,59 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Hubtag Viz</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
-
-<style>
-.tile {
-    border: 1px solid lightgray;
-    width: 20px;
-    height: 20px;
-    padding: 2px;
-    margin: 2px;
-
-}
-
-.tile:hover {
-    border: 1px solid gray;
-    cursor: pointer;
-}
-
-.tile--0 {
-    background-color: #eee;
-}
-
-.tile--1 {
-    background-color: #d6e685;
-}
-
-.tile--2 {
-    background-color: #8cc665;
-}
-
-.tile--3 {
-    background-color: #44a340;
-}
-
-
-.tile--4 {
-    background-color: #1e6823;
-}
-
-
-.legend  ul {
-    display: inline;
-    list-style-type: none;
-}
-
-.legend > li {
-    display: inline-block;;
-    min-width: 10px;
-    height: 10px;
-}
-
-</style>
+    <title>Hubtag Viz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="hubtag-viz.css">
 </head>
+
 <body ng-app="hubtagApp" ng-controller="HubtagController as ctrl">
 
 <h1>Hubtag Viz</h1>
@@ -71,27 +23,30 @@
 
 <table>
     <thead>
-        <tr>
-            <td></td>
-            <td ng-repeat="week in ctrl.weeks">
-                <span>   </span>
-                <span ng-if="week % 4 == 0 || $index == 0 || $index == ctrl.weeks.length-1">W{{week}}</span>
-            </td>
-        </tr>
+    <tr>
+        <td></td>
+        <td ng-repeat="week in ctrl.weeks">
+            <span>   </span>
+            <span ng-if="week % 4 == 0 || $index == 0 || $index == ctrl.weeks.length-1">W{{week}}</span>
+        </td>
+    </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="day in ctrl.days">
-            <td>{{day}}</td>
-            <td ng-repeat="week in ctrl.weeks">
-            <div class="tile tile--{{ctrl.getContributions(week, day)}}" ng-click="ctrl.clickOnTile(week, day)"></div>
+    <tr ng-repeat="(day, dayIndex) in ctrl.days">
+        <td>{{day}}</td>
+        <td ng-repeat="week in ctrl.weeks">
+            <div class="tile tile--{{ctrl.getContributions(week, dayIndex)}}" ng-click="ctrl.clickOnTile(week, dayIndex, day)"></div>
         </td>
-        </tr>
+    </tr>
     </tbody>
 </table>
 
-    <hr>
-    <p>Here is your current schedule:<p>
-    <div ng-repeat="(key, action) in ctrl.tiles | sortedSchedule" ng-if="action.contributions > 0">Week {{action.week}}:  {{action.day}} --> {{action.contributions}}</div>
+<hr>
+<p>Here is your current schedule:
+<p>
+<div ng-repeat="(key, action) in ctrl.tiles | sortedSchedule" ng-if="action.contributions > 0">Week {{action.week}}:
+    {{action.day}} --> {{action.contributions}}
+</div>
 
 <script src="hubtag-viz.js"></script>
 </body>

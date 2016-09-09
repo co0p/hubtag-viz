@@ -1,0 +1,46 @@
+.tile {
+    border: 1px solid lightgray;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    margin: 2px;
+
+}
+
+.tile:hover {
+    border: 1px solid gray;
+    cursor: pointer;
+}
+
+.tile--0 {
+    background-color: #eee;
+}
+
+.tile--1 {
+    background-color: #d6e685;
+}
+
+.tile--2 {
+    background-color: #8cc665;
+}
+
+.tile--3 {
+    background-color: #44a340;
+}
+
+
+.tile--4 {
+    background-color: #1e6823;
+}
+
+
+.legend  ul {
+    display: inline;
+    list-style-type: none;
+}
+
+.legend > li {
+    display: inline-block;;
+    min-width: 10px;
+    height: 10px;
+}
